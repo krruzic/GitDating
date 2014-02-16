@@ -15,7 +15,7 @@ Page {
         loginSheet.open();
     }
     function onLoginComplete(data) {
-        if (data.result == "true") {
+        if (data.data == "true") {
             loading.running = false;
             loginSheet.close();
         }
@@ -31,6 +31,8 @@ Page {
             Page {
                 titleBar: TitleBar {
                     title: "Login in to Continue"
+                    visibility: ChromeVisibility.Visible
+                    scrollBehavior: TitleBarScrollBehavior.Sticky
                 }
                 Container {
                     layout: DockLayout {
@@ -104,18 +106,19 @@ Page {
     ]
 
     function onDatesReceived(data) {
+        loadingList.visible = false;
+        loadingList.running = false;
         recModel.append({
                 type: 'item',
-                name: data.story['dateName'],
-                location: data.story['dateLocation'],
-                languages: data.story['dateLanguages'],
-                repos: data.story['dateRepos'],
-                avatar_url: data.story['dateAvatar_url'],
-                username: data.story['dateUsername'],
-                email: data.story['dateEmail'],
-                stars: data.story['dateStars']
+                name: data.result['dateName'],
+                location: data.result['dateLocation'],
+                languages: data.result['dateLanguages'],
+                repos: data.result['dateRepos'],
+                avatar_url: data.result['dateAvatar_url'],
+                username: data.result['dateUsername'],
+                email: data.result['dateEmail'],
+                stars: data.result['dateStars']
             });
-
     }
     titleBar: TitleBar {
         title: "GitDating"
@@ -127,6 +130,8 @@ Page {
                 }
             }
         ]
+        visibility: ChromeVisibility.Visible
+        scrollBehavior: TitleBarScrollBehavior.Sticky
     }
     Container {
         horizontalAlignment: HorizontalAlignment.Fill

@@ -6,6 +6,7 @@ import threading, os, glob, shutil
 import requests, requests.utils
 from github import Github
 import tart
+from .git import gitDate
 
 class App(tart.Application):
     """ The class that directly communicates with Tart and Cascades
@@ -15,7 +16,7 @@ class App(tart.Application):
     HEADERS = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.22 (KHTML, like Gecko) Chrome/25.0.1364.29 Safari/537.22',
     }
-    gd = None
+    gh = None
     personalData = {}
 
     def __init__(self):
@@ -43,15 +44,15 @@ class App(tart.Application):
 
 
 ## Tart sends
-    def onSignIn(self, username, password):
+    def onSignIn(self, username, password, looking_for=None):
         print("Signing in!")
+        self.gh = Github(username, password)
         try:
-            self.gd = Github(username, password)
+            me = self.gh.get_user()
+            tart.send('loginComplete', data="true")
         except github.GithubException.BadCredentialsException:
             tart.send('loginComplete', data="false")
-        else:
-            tart.send('loginComplete', result="true")
-        me = self.gd.get_user()
+            return
 
         myRepos = me.get_repos()
         data = {}
@@ -79,6 +80,8 @@ class App(tart.Application):
 
     def onFillList(self):
         print("Getting list of users....")
-        results = self.gd.calculateCompatibility(self.personalData)
+        gd = gitDate()
+        results = gd.calculateCompatibility(self.personalData)
         print("List Received!!")
-        tart.send('datesReceived', results=results)
+        for result in results:
+            tart.send('datesReceived', result=result)

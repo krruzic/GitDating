@@ -21,7 +21,7 @@ Container {
         languagesID.text = data.data["languages"][0] + " " + data.data["languages"][1] + " " + data.data["languages"][2];
         imageID.imageSource = data.image;
         repoID.text = data.data["num_of_repos"] + " repos";
-        tart.send('fillList');
+        Tart.send('fillList');
     }
     
     attachedObjects: [

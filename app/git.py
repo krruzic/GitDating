@@ -103,7 +103,7 @@ class gitDate():
 
 
     def calculateCompatibility(self, data):
-        obj  = json.load(open("data1.json"))
+        obj  = json.load(open(os.getcwd() + "/app/native/app/data1.json"))
         selections = []
         for i in range(50):
             selections.append(random.randrange(len(obj)))
