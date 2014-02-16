@@ -7,7 +7,7 @@ Container {
     verticalAlignment: VerticalAlignment.Center
     property string name: "Test Name"
     property string location: "Calgary, AB"
-    property variant languages: [ "Python", "Java", "C" ]
+    property variant languages: ""
     property string imageLoc: ""
     property int repos: 0
     onCreationCompleted: {
@@ -63,7 +63,7 @@ Container {
                 minWidth: 100
                 minHeight: 100
                 onImageSourceChanged: {
-                    console.log("IMAGE CHANGED " + imageSource)
+                    console.log("IMAGE CHANGED " + imageSource);
                 }
             }
             Container {

@@ -65,24 +65,27 @@ class App(tart.Application):
 
         for item in myRepos:                        
             data["num_of_repos"] = data["num_of_repos"] + 1
-            if (item.language != None):
-                if (item.language not in data["languages"] and len(data["languages"]) < 3):
-                    data["languages"].append(item.language)
+            if (item.language != None and item.language not in data["languages"] and len(data["languages"]) < 3):
+                data["languages"].append(item.language)
         while len(data["languages"]) < 3:
             data["languages"].append("")
-
         response = requests.get(me.avatar_url, stream=True)
         with open('data/profile.png', 'wb') as out_file:
             shutil.copyfileobj(response.raw, out_file)
         del response
         self.personalData = data
-        print("sending user data")
+        if data["name"] == None:
+            data["name"] = me.username
+        if data["location"] == None:
+            data["location"] = ""
+
         tart.send('userData', data=data, image=(os.getcwd() + "/" + "data/profile.png"))
+        print("Past tart..")
         return
 
     def onFillList(self):
-        print("Getting list of users....")
         gd = gitDate()
+        print(self.personalData)
         results = gd.calculateCompatibility(self.personalData)
         print("List Received!!")
         print(results)

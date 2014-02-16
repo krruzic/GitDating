@@ -32,23 +32,6 @@ Container {
         ImagePaintDefinition {
             id: background
             imageSource: "asset:///images/itemBackground.amd"
-        },
-        ActionSet {
-            actions: [
-                ActionItem {
-                    title: "TEST"
-                },
-                InvokeActionItem {
-                    enabled: true
-                    title: "Share to FaceBook"
-                    query {
-                        mimeType: "mime/text"
-                        invokeActionId: "bb.action.SHARE"
-                        invokeTargetId: "Facebook"
-                        data: "Hi, " + dateName + " I just got matched to you with GitDating for BB10. It's great we went to PennApps, will you be my Hackentine?"
-                    }
-                }
-            ]
         }
     ]
     Container {

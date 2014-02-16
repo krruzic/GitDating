@@ -14,9 +14,9 @@ Page {
 
         Tart.register(root);
         Tart.send('uiReady');
-        
+
     }
-    
+
     function onLoginComplete(data) {
         if (data.data == "true") {
             loading.running = false;
@@ -36,7 +36,7 @@ Page {
         youItem.imageLoc = data.image;
         youItem.repos = data.data["num_of_repos"];
         loginSheet.close();
-        Tart.send('fillList');
+        Tart.send('fillList');	
     }
 
     attachedObjects: [
@@ -118,7 +118,7 @@ Page {
                                     Tart.send('signIn', {
                                             "username": userField.text,
                                             "password": passwordField.text,
-                                            "looking_for": sheetPage.selected
+                                            "looking_for": radioButtons.selectedOption.text
                                         })
                                 }
                             }
@@ -145,14 +145,14 @@ Page {
                 ]
             }
         },
-    SystemToast {
-        id: errorToast
-    }
+        SystemToast {
+            id: errorToast
+        }
     ]
 
     function onDatesReceived(data) {
-        loadingList.visible = false;
-        loadingList.running = false;
+        // loadingList.visible = false;
+        // loadingList.running = false;
         recModel.append({
                 type: 'item',
                 name: data.result['dateName'],
@@ -183,16 +183,16 @@ Page {
             id: header
             title: "Github users similar to you"
         }
-        ActivityIndicator {
-            id: loadingList
-            visible: true
-            running: true
-            horizontalAlignment: HorizontalAlignment.Center
-            minHeight: 300
-            minWidth: 300
-            verticalAlignment: VerticalAlignment.Center
-            touchPropagationMode: TouchPropagationMode.Full
-        }
+        //        ActivityIndicator {
+        //            id: loadingList
+        //            visible: true
+        //            running: true
+        //            horizontalAlignment: HorizontalAlignment.Center
+        //            minHeight: 300
+        //            minWidth: 300
+        //            verticalAlignment: VerticalAlignment.Center
+        //            touchPropagationMode: TouchPropagationMode.Full
+        //        }
         ListView {
             dataModel: ArrayDataModel {
                 id: recModel
@@ -216,8 +216,28 @@ Page {
                         dateImg: ListItemData.img
                         horizontalAlignment: HorizontalAlignment.Fill
                         verticalAlignment: VerticalAlignment.Center
+//                        contextActions: [
+//                            ActionSet {
+//                                actions: [
+//                                    InvokeActionItem {
+//                                        id: facebookShare
+//                                        enabled: true
+//                                        title: "Share to FaceBook"
+//                                        query {
+//                                            mimeType: "mime/text"
+//                                            invokeActionId: "bb.action.SHARE"
+//                                            invokeTargetId: "Facebook"
+//                                            data: "Hi, " + ListItemData.name + " I just got matched to you with GitDating for BB10. It's great we went to PennApps, will you be my Hackentine?"
+//                                        }
+//                                        onTriggered: {
+//                                            console.log("TEST")                                            
+//                                        }
+//                                    }
+//                                ]
+//                            }
+//                        ]
                     }
-                
+
                 }
             ]
             onTriggered: {

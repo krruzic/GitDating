@@ -105,8 +105,7 @@ class gitDate():
         locations = [x.strip() for x in data["location"].split(',')]
 
         for i in obj:
-            print(data)
-            skip = False
+            skip = True
             date = {}
             locationStars = 0
             repoStars = 0
@@ -116,19 +115,22 @@ class gitDate():
 
             dateLocations = [x.strip() for x in i["location"].split(',')]
             dateRepos = i["num_of_repos"]
+            print(data["looking_for"])
 
-            if i["gender"] != data["looking_for"]:
-                skip = True
-            if i["name"] == data["name"]:
-                skip = True
+            if i["gender"] == data["looking_for"]:
+                print("Skipping gender")
+                skip = False
+            # if i["name"] == data["name"]:
+            #     print("Skipping you")
+            #     skip = True
 
 
             for item in dateLocations:
                 if (item in locations and locationStars == 0):
-                    print("item in location " + item)
-                    locationStars = 1
+                    if (item != ""):
+                        print("item in location " + item)
+                        locationStars = 1
             if dateLanguages != ['', '', '']:
-                print(dateLanguages)
                 for item in dateLanguages:
                     if item in data["languages"]:
                         if item != '':
@@ -160,14 +162,9 @@ class gitDate():
 
             if data["languages"][2] == "" and date["dateLanguages"][2] == "":
                 date["dateStars"] += 1
-
+            print("Skipping? ", str(skip))
             if skip == False:
                 res.append(date)
-
-            print(date["dateName"], "locationStars", locationStars, "repoStars", repoStars, "languageStars", languageStars)
-
-            print()
-
 
         return res
 
