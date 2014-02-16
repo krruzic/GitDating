@@ -13,16 +13,18 @@ Container {
     onCreationCompleted: {
         Tart.register(youItem);
     }
-    
-    function onUserData(data) {
-        console.log("data received!!");
-        nameID.text = data.data["name"];
-        locationID.text = data.data["location"];
-        languagesID.text = data.data["languages"][0] + " " + data.data["languages"][1] + " " + data.data["languages"][2];
-        imageID.imageSource = data.image;
-        repoID.text = data.data["num_of_repos"] + " repos";
-        Tart.send('fillList');
+    onImageLocChanged: {
+        imageID.imageSource =imageLoc;
     }
+//    function onUserData(data) {
+//        console.log("data received!!");
+//        nameID.text = data.data["name"];
+//        locationID.text = data.data["location"];
+//        languagesID.text = data.data["languages"][0] + " " + data.data["languages"][1] + " " + data.data["languages"][2];
+//        imageID.imageSource = data.image;
+//        repoID.text = data.data["num_of_repos"] + " repos";
+//        Tart.send('fillList');
+//    }
     
     attachedObjects: [
         TextStyleDefinition {
@@ -117,7 +119,7 @@ Container {
                 bottomMargin: 0
                 textStyle.fontSizeValue: 5
                 textStyle.base: lightStyle.style
-                text: languages[0] + ", " + languages[1] + ", " + languages[2]
+                text: languages
                 textStyle.color: Color.Gray
             }
         }

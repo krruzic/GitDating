@@ -44,27 +44,29 @@ class App(tart.Application):
 
 
 ## Tart sends
-    def onSignIn(self, username, password, looking_for=None):
+    def onSignIn(self, username, password, looking_for="female"):
         print("Signing in!")
         self.gh = Github(username, password)
+        me = self.gh.get_user()
+    
+        myRepos = me.get_repos()
+        data = {}
         try:
-            me = self.gh.get_user()
+            data["location"] = me.location
             tart.send('loginComplete', data="true")
-        except github.GithubException.BadCredentialsException:
+        except:
             tart.send('loginComplete', data="false")
             return
 
-        myRepos = me.get_repos()
-        data = {}
-        data["location"] = me.location
         data["name"] = me.name
         data["num_of_repos"] = 0
         data["languages"] = []
+        data["looking_for"] = looking_for
 
         for item in myRepos:                        
             data["num_of_repos"] = data["num_of_repos"] + 1
-            if (item.language not in data["languages"] and item.language != None):
-                if (len(data["languages"]) < 3):
+            if (item.language != None):
+                if (item.language not in data["languages"] and len(data["languages"]) < 3):
                     data["languages"].append(item.language)
         while len(data["languages"]) < 3:
             data["languages"].append("")
@@ -83,5 +85,6 @@ class App(tart.Application):
         gd = gitDate()
         results = gd.calculateCompatibility(self.personalData)
         print("List Received!!")
+        print(results)
         for result in results:
             tart.send('datesReceived', result=result)

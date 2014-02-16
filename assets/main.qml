@@ -1,9 +1,11 @@
 import "tart.js" as Tart
 import bb.cascades 1.2
+import bb.system 1.2
 
 Page {
     id: root
     onCreationCompleted: {
+        loginSheet.open();
         //Application.invisible.connect(onInvisible);
         //Application.awake.connect(onVisible);
 
@@ -12,23 +14,38 @@ Page {
 
         Tart.register(root);
         Tart.send('uiReady');
-        loginSheet.open();
+        
     }
+    
     function onLoginComplete(data) {
         if (data.data == "true") {
             loading.running = false;
-            loginSheet.close();
-        }
-        else {
+        } else {
+            errorToast.body = "Error logging in!";
+            errorToast.cancel();
+            errorToast.show();
+            loading.running = false;
             userField.text = "";
             passwordField.text = "";
         }
+    }
+    function onUserData(data) {
+        youItem.name = data.data["name"];
+        youItem.location = data.data["location"];
+        youItem.languages = data.data["languages"][0] + " " + data.data["languages"][1] + " " + data.data["languages"][2];
+        youItem.imageLoc = data.image;
+        youItem.repos = data.data["num_of_repos"];
+        loginSheet.close();
+        Tart.send('fillList');
     }
 
     attachedObjects: [
         Sheet {
             id: loginSheet
+            peekEnabled: false
             Page {
+                id: sheetPage
+                property string selected: ""
                 titleBar: TitleBar {
                     title: "Login in to Continue"
                     visibility: ChromeVisibility.Visible
@@ -66,6 +83,30 @@ Page {
                                 flags: TextInputFlag.AutoCapitalizationOff | TextInputFlag.SpellCheckOff
                             }
                         }
+                        Label {
+                            text: "Looking for?"
+                            textStyle.base: lightStyle.style
+                            bottomMargin: 0
+                            topMargin: 0
+                        }
+                        RadioGroup {
+                            id: radioButtons
+
+                            options: [
+                                Option {
+                                    id: femaleSelection
+                                    text: "female"
+                                    selected: true
+                                },
+                                Option {
+                                    id: maleSelection
+                                    text: "male"
+                                }
+                            ]
+                            onSelectedOptionChanged: {
+                                sheetPage.selected = selectedOption.text;
+                            }
+                        }
                         Container {
                             verticalAlignment: VerticalAlignment.Center
                             horizontalAlignment: HorizontalAlignment.Center
@@ -76,7 +117,8 @@ Page {
                                     loading.running = true;
                                     Tart.send('signIn', {
                                             "username": userField.text,
-                                            "password": passwordField.text
+                                            "password": passwordField.text,
+                                            "looking_for": sheetPage.selected
                                         })
                                 }
                             }
@@ -102,7 +144,10 @@ Page {
                     }
                 ]
             }
-        }
+        },
+    SystemToast {
+        id: errorToast
+    }
     ]
 
     function onDatesReceived(data) {
@@ -117,19 +162,14 @@ Page {
                 avatar_url: data.result['dateAvatar_url'],
                 username: data.result['dateUsername'],
                 email: data.result['dateEmail'],
-                stars: data.result['dateStars']
+                stars: data.result['dateStars'],
+                img: data.result["dateImg"]
             });
+        header.subtitle = recModel.size();
     }
     titleBar: TitleBar {
         title: "GitDating"
         kind: TitleBarKind.Default
-        attachedObjects: [
-            TapHandler {
-                onTapped: {
-                    youItem.visible = ! youItem.visible
-                }
-            }
-        ]
         visibility: ChromeVisibility.Visible
         scrollBehavior: TitleBarScrollBehavior.Sticky
     }
@@ -140,6 +180,7 @@ Page {
             horizontalAlignment: HorizontalAlignment.Fill
         }
         Header {
+            id: header
             title: "Github users similar to you"
         }
         ActivityIndicator {
@@ -150,6 +191,7 @@ Page {
             minHeight: 300
             minWidth: 300
             verticalAlignment: VerticalAlignment.Center
+            touchPropagationMode: TouchPropagationMode.Full
         }
         ListView {
             dataModel: ArrayDataModel {
@@ -171,12 +213,16 @@ Page {
                         dateUsername: ListItemData.username
                         dateEmail: ListItemData.email
                         dateStars: ListItemData.stars
-
+                        dateImg: ListItemData.img
                         horizontalAlignment: HorizontalAlignment.Fill
                         verticalAlignment: VerticalAlignment.Center
                     }
+                
                 }
             ]
+            onTriggered: {
+                console.log(indexPath);
+            }
         }
     }
 }

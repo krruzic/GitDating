@@ -9,52 +9,49 @@ class gitDate():
 
     def getAuth(self, session):
 
-        names = self.getNames()
-        me = g.get_user()
 
-        print(me.name)
-        myRepos = me.get_repos()
-        for repo in myRepos:
-            if repo != None:
-                print(repo.name, repo.language)
-        data = {}
-        data["location"] = me.location
-        data["avatar_url"] = me.avatar_url
-        data["languages"] = []
-        data["num_of_repos"] = 0
-
-        if myRepos != None:
-            for item in myRepos:                        
-                    #repo = {}
-                data["num_of_repos"] = data["num_of_repos"] + 1
-                if (item.language not in data["languages"] and item.language != None):
-                    if (len(data["languages"]) < 3):
-                        data["languages"].append(item.language)
-
-        print()
         people = []
+        names = []
+        genders = []
+        thing = []
+        a = open("names.txt", "r+")
+        for line in a.readlines():
+            lines = line.split(', ')
+            thing.append(lines)
+        for i in thing:
+            print(i)
+            i[1].replace("\\n", "")
+            names.append(i[0])
+            genders.append(i[1])
         iterNames = iter(names)
-        f = open('results.json', 'w+')
-        for name in names:
-            print("entering name " + name)
+
+            #print(genders)
+        for i in range(len(names)):
+            print("entering name " + names[i])
             try:
-                account = g.get_user(name)
+                account = session.get_user(names[i])
+            # try:
+                
             except:
+                print("Skipping " + names[i])
                 next(iterNames)
             person = {}
-            person["username"] = name
+            person["username"] = names[i]
             person["num_of_repos"] = 0
             person["languages"] = []
             person["location"] = account.location
             person["avatar"] = account.avatar_url
             person["email"] = account.email
             person["name"] = account.name
-            #person["username"] = account.login
+            person["gender"] = genders[i]
 
+            if person["name"] == None:
+                person["name"] = names[i]
             if person["location"] == None:
                 person["location"] = ""
             if person["email"] == None:
                 person["email"] = ""
+
 
 
             try:             
@@ -65,19 +62,17 @@ class gitDate():
                 for item in repos:                        
                     #repo = {}
                     person["num_of_repos"] = person["num_of_repos"] + 1
-                    if (item.language not in person["languages"] and item.language != None):
-                        if (len(person["languages"]) < 3):
+                    if (item.language != None):
+                        if (item.language not in person["languages"] and len(person["languages"]) < 3):
                             person["languages"].append(item.language)
-                    #person["issue_link"] = "https://github.com/" + name + "/" + item.name + "/issues/"
+                while len(person["languages"]) < 3:
+                    person["languages"].append("")
 
-                    #repo["repo_name"] = item.name
-                    #repo["language"] = item.language
-                    #person["repos"].append(repo)
                 people.append(person)
 
         with open('data1.json', 'w') as outfile:
             json.dump(people, outfile, indent=4, separators=(',',':'))
-        f.close()
+        a.close()
         return people
 
     def getNames(self):
@@ -103,66 +98,103 @@ class gitDate():
 
 
     def calculateCompatibility(self, data):
-        obj  = json.load(open(os.getcwd() + "/app/native/app/data1.json"))
-        selections = []
-        for i in range(50):
-            selections.append(random.randrange(len(obj)))
+
+        obj = json.load(open(os.getcwd() + "/app/native/app/data1.json"))
 
         res = []
         locations = [x.strip() for x in data["location"].split(',')]
 
-        print(obj[1]["location"])
-        for i in selections:
+        for i in obj:
+            print(data)
+            skip = False
             date = {}
             locationStars = 0
             repoStars = 0
             languageStars = 0
 
-            dateLanguages = obj[i]["languages"]
+            dateLanguages = i["languages"]
 
-            dateLocations = [x.strip() for x in obj[i]["location"].split(',')]
-            dateRepos = obj[i]["num_of_repos"]
+            dateLocations = [x.strip() for x in i["location"].split(',')]
+            dateRepos = i["num_of_repos"]
+
+            if i["gender"] != data["looking_for"]:
+                skip = True
+            if i["name"] == data["name"]:
+                skip = True
 
 
             for item in dateLocations:
-                print(item)
-                print(locations)
                 if (item in locations and locationStars == 0):
-                    print("item in location")
+                    print("item in location " + item)
                     locationStars = 1
+            if dateLanguages != ['', '', '']:
+                print(dateLanguages)
+                for item in dateLanguages:
+                    if item in data["languages"]:
+                        if item != '':
+                            languageStars += 1
 
-            for item in dateLanguages:
-                if item in data["languages"]:
-                    languageStars += 1
-
-
-            if ((data["num_of_repos"] - 5) <= dateRepos) and (dateRepos >= (data["num_of_repos"] + 5)):
-                repoStars = 1
+            mini = data["num_of_repos"] - 5
+            maxi = data["num_of_repos"] + 5
+            if dateRepos != 0:
+                if (dateRepos >= mini) and (dateRepos <= maxi):
+                    repoStars = 1
 
             date["dateStars"] = (locationStars + repoStars + languageStars)
-            print("locationStars", locationStars, "repoStars", repoStars, "languageStars", languageStars)
-            date["dateRepos"] = dateRepos
-            date["dateLanguages"] = dateLanguages
-            date["dateLocation"] = obj[i]["location"]
-            date["dateEmail"] = obj[i]["email"]
-            date["dateAvatar_url"] = obj[i]["avatar"]
-            date["dateUsername"] = obj[i]["username"]
-            date["dateName"] = obj[i]["name"]
+            date["dateRepos"] = i["num_of_repos"]
+            date["dateLanguages"] = i["languages"]
+            date["dateLocation"] = i["location"]
+            date["dateEmail"] = i["email"]
+            date["dateAvatar_url"] = i["avatar"]
+            date["dateUsername"] = i["username"]
+            date["dateName"] = i["name"]
+            date["dateImg"] = os.getcwd() + "/app/native/assets/profiles/" + i["username"] + ".png"
+            date["gender"] = i["gender"]
 
-            res.append(date)
+            if date["dateName"] == None:
+                date["dateName"] = i["username"]
+            if date["dateLocation"] == None:
+                date["dateLocation"] = ""
+            if date["dateEmail"] == None:
+                date["dateEmail"] = ""
+
+            if data["languages"][2] == "" and date["dateLanguages"][2] == "":
+                date["dateStars"] += 1
+
+            if skip == False:
+                res.append(date)
+
+            print(date["dateName"], "locationStars", locationStars, "repoStars", repoStars, "languageStars", languageStars)
+
+            print()
+
+
         return res
 
 
 
 
-            #j = json.dumps(obj[i], indent=4, separators=',')
+            #j = json.dumps(i, indent=4, separators=',')
             #res.append(j)
-        #print(res)
+        #print(res
 
 
-#gh = gitDate()
-#results = gh.getAuth('krruzic', '872lbangk278')
-#res = gh.calculateCompatibility()
+# data = {
+#     "name": "Kristopher Ruzic",
+#     "looking_for": "female",
+#     "location": "Calgary, AB",
+#     "languages": [
+#     "Python", "PHP"],
+#     "num_of_repos": 10
+#     }
+
+# gh = gitDate()
+# #sess = Github('krruzic', '872lbangk278')
+# #results = gh.getAuth(sess)
+# res = gh.calculateCompatibility(data)
+# with open('test.json', 'w') as outfile:
+#     json.dump(res, outfile, indent=4, separators=(',',':'))
+
 #print(res)
 # results = json.dumps(results)
 # print(results)

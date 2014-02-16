@@ -5,21 +5,20 @@ import "global.js" as Global
 Container {
     //background: background.imagePaint
     verticalAlignment: VerticalAlignment.Center
-    property int dateStars: 5
+    property int dateStars: 4
     property variant compatibilityVals: [ "No compatibility", "Some similarities...", "Okay connection", "Good enough", "Great together!",
         "Perfect Match!" ]
-    property string dateName: "Kristopher Ruzic"
-    property string dateLocation: "Calgary, AB"
-    property variant dateLanguages: [ "Python", "Java", "C" ]
+    property string dateName: "Test Name"
+    property string dateLocation: "Test, Location"
+    property variant dateLanguages: [ "Test", "Languages", "C" ]
     property int dateRepos: 0
     property string dateUsername: ""
     property string dateAvatar_url: ""
     property string dateEmail: ""
+    property string dateImg: ""
 
-    onDateEmailChanged: {
-        if (email != "") {
-            emailAction.enabled = true;
-        }
+    onDateImgChanged: {
+        imgID.imageSource = dateImg;
     }
 
     attachedObjects: [
@@ -35,9 +34,21 @@ Container {
             imageSource: "asset:///images/itemBackground.amd"
         },
         ActionSet {
-            ActionItem {
-                id: emailAction
-            }
+            actions: [
+                ActionItem {
+                    title: "TEST"
+                },
+                InvokeActionItem {
+                    enabled: true
+                    title: "Share to FaceBook"
+                    query {
+                        mimeType: "mime/text"
+                        invokeActionId: "bb.action.SHARE"
+                        invokeTargetId: "Facebook"
+                        data: "Hi, " + dateName + " I just got matched to you with GitDating for BB10. It's great we went to PennApps, will you be my Hackentine?"
+                    }
+                }
+            ]
         }
     ]
     Container {
@@ -54,10 +65,13 @@ Container {
             }
             horizontalAlignment: HorizontalAlignment.Left
             ImageView {
+                id: imgID
                 verticalAlignment: VerticalAlignment.Center
                 imageSource: "asset:///images/defaultAvatar.png"
                 maxWidth: 100
                 maxHeight: 100
+                minHeight: 100
+                minWidth: 100
             }
             Container {
                 translationY: -2
@@ -82,7 +96,7 @@ Container {
                     bottomMargin: 0
                     textStyle.fontSizeValue: 5
                     textStyle.base: lightStyle.style
-                    text: dateLanguages[0] + ", " + dateLanguages[1] + ", " + dateLanguages[2]
+                    text: dateLanguages[0] + " " + dateLanguages[1] + " " + dateLanguages[2]
                     textStyle.color: Color.Gray
                 }
                 Label {
