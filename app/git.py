@@ -102,13 +102,7 @@ class gitDate():
         return names
 
 
-    def calculateCompatibility(self):
-        data = {
-        "location": "Calgary, AB",
-        "languages": ["Python", "Java", "C"],
-        "num_of_repos": 5
-        }
-
+    def calculateCompatibility(self, data):
         obj  = json.load(open("data1.json"))
         selections = []
         for i in range(50):
@@ -116,8 +110,6 @@ class gitDate():
 
         res = []
         locations = [x.strip() for x in data["location"].split(',')]
-
-
 
         print(obj[1]["location"])
         for i in selections:

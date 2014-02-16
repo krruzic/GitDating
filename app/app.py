@@ -16,6 +16,7 @@ class App(tart.Application):
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.22 (KHTML, like Gecko) Chrome/25.0.1364.29 Safari/537.22',
     }
     gd = None
+    personalData = {}
 
     def __init__(self):
         super().__init__(debug=False)   # set True for some extra debug output
@@ -57,25 +58,27 @@ class App(tart.Application):
         data["location"] = me.location
         data["name"] = me.name
         data["num_of_repos"] = 0
-        #data["avatar_url"] = me.avatar_url
         data["languages"] = []
+
         for item in myRepos:                        
             data["num_of_repos"] = data["num_of_repos"] + 1
             if (item.language not in data["languages"] and item.language != None):
                 if (len(data["languages"]) < 3):
                     data["languages"].append(item.language)
-        while len(data["languages"] < 3):
+        while len(data["languages"]) < 3:
             data["languages"].append("")
 
         response = requests.get(me.avatar_url, stream=True)
         with open('data/profile.png', 'wb') as out_file:
             shutil.copyfileobj(response.raw, out_file)
         del response
-
+        self.personalData = data
         print("sending user data")
-        print(data)
-        tart.send('userData', data=data)
+        tart.send('userData', data=data, image=(os.getcwd() + "/" + "data/profile.png"))
+        return
 
-    def onGetRecs(self):
-        results = github.calculateCompatibility(self.personalData) 
+    def onFillList(self):
+        print("Getting list of users....")
+        results = self.gd.calculateCompatibility(self.personalData)
+        print("List Received!!")
         tart.send('datesReceived', results=results)

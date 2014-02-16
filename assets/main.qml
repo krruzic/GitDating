@@ -16,10 +16,8 @@ Page {
     }
     function onLoginComplete(data) {
         if (data.result == "true") {
-
             loading.running = false;
             loginSheet.close();
-            tart.send('getRecs');
         }
         else {
             userField.text = "";
@@ -138,6 +136,15 @@ Page {
         }
         Header {
             title: "Github users similar to you"
+        }
+        ActivityIndicator {
+            id: loadingList
+            visible: true
+            running: true
+            horizontalAlignment: HorizontalAlignment.Center
+            minHeight: 300
+            minWidth: 300
+            verticalAlignment: VerticalAlignment.Center
         }
         ListView {
             dataModel: ArrayDataModel {

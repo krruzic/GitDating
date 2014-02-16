@@ -5,23 +5,23 @@ Container {
     id: youItem
     //background: background.imagePaint
     verticalAlignment: VerticalAlignment.Center
-    //property string name: "Test Name"
-    //property string location: "Calgary, AB"
-    //property variant languages: [ "Python", "Java", "C" ]
-    //property string imageLoc: ""
-    //property int repos: 0
+    property string name: "Test Name"
+    property string location: "Calgary, AB"
+    property variant languages: [ "Python", "Java", "C" ]
+    property string imageLoc: ""
+    property int repos: 0
     onCreationCompleted: {
         Tart.register(youItem);
     }
     
     function onUserData(data) {
         console.log("data received!!");
-        console.log(data.data["name"]);
         nameID.text = data.data["name"];
         locationID.text = data.data["location"];
-        languagesID.text = data.data["languages"][0] + ", " + data.data["languages"][1] + ", " + data.data["languages"][2];
-        imageID.imageSource = "data/profile.png";
-        repoID.text = data["num_of_repos"] + " repos";
+        languagesID.text = data.data["languages"][0] + " " + data.data["languages"][1] + " " + data.data["languages"][2];
+        imageID.imageSource = data.image;
+        repoID.text = data.data["num_of_repos"] + " repos";
+        tart.send('fillList');
     }
     
     attachedObjects: [
@@ -58,6 +58,11 @@ Container {
                 imageSource: "asset:///images/defaultAvatar.png"
                 maxWidth: 100
                 maxHeight: 100
+                minWidth: 100
+                minHeight: 100
+                onImageSourceChanged: {
+                    console.log("IMAGE CHANGED " + imageSource)
+                }
             }
             Container {
                 translationY: -5
