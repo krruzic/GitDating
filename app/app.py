@@ -1,20 +1,17 @@
-import threading, os, glob
+import threading, os, glob, shutil
 # from .HNStoryAPI import getStoryPage
 # from .HNCommentAPI import getCommentPage
 # from .HNUserAPI import getUserPage
 # from .HNSearchAPI import getSearchResults
-from bs4 import BeautifulSoup
-from datetime import datetime, timedelta
-import requests, requests.utils, pickle, re, html.parser, cgi
+import requests, requests.utils
 from github import Github
 import tart
-
-import readeryc
 
 class App(tart.Application):
     """ The class that directly communicates with Tart and Cascades
     """
 
+    SETTINGS_FILE = 'data/settings.state'
     HEADERS = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.22 (KHTML, like Gecko) Chrome/25.0.1364.29 Safari/537.22',
     }
@@ -46,28 +43,38 @@ class App(tart.Application):
 
 ## Tart sends
     def onSignIn(self, username, password):
-        self.gd = gitDate(username, password)
+        print("Signing in!")
+        try:
+            self.gd = Github(username, password)
+        except github.GithubException.BadCredentialsException:
+            tart.send('loginComplete', data="false")
+        else:
+            tart.send('loginComplete', result="true")
         me = self.gd.get_user()
 
         myRepos = me.get_repos()
-        for repo in myRepos:
-            if repo != None:
-                print(repo.name, repo.language)
-
         data = {}
         data["location"] = me.location
-        data["avatar_url"] = me.avatar_url
+        data["name"] = me.name
+        data["num_of_repos"] = 0
+        #data["avatar_url"] = me.avatar_url
         data["languages"] = []
-        if repos != None:
-            for item in repos:                        
-                data["num_of_repos"] = data["num_of_repos"] + 1
-                if (item.language not in person["languages"] and item.language != None):
-                    if (len(data["languages"]) < 3):
-                        data["languages"].append(item.language)
+        for item in myRepos:                        
+            data["num_of_repos"] = data["num_of_repos"] + 1
+            if (item.language not in data["languages"] and item.language != None):
+                if (len(data["languages"]) < 3):
+                    data["languages"].append(item.language)
+        while len(data["languages"] < 3):
+            data["languages"].append("")
 
-        self.personalData = data
+        response = requests.get(me.avatar_url, stream=True)
+        with open('data/profile.png', 'wb') as out_file:
+            shutil.copyfileobj(response.raw, out_file)
+        del response
+
+        print("sending user data")
+        print(data)
         tart.send('userData', data=data)
-
 
     def onGetRecs(self):
         results = github.calculateCompatibility(self.personalData) 

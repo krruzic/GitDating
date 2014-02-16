@@ -10,22 +10,24 @@ class gitDate():
     def getAuth(self, session):
 
         names = self.getNames()
-        me = self.g.get_user()
+        me = g.get_user()
 
         print(me.name)
         myRepos = me.get_repos()
         for repo in myRepos:
             if repo != None:
                 print(repo.name, repo.language)
-
+        data = {}
         data["location"] = me.location
         data["avatar_url"] = me.avatar_url
         data["languages"] = []
-        if repos != None:
-            for item in repos:                        
+        data["num_of_repos"] = 0
+
+        if myRepos != None:
+            for item in myRepos:                        
                     #repo = {}
                 data["num_of_repos"] = data["num_of_repos"] + 1
-                if (item.language not in person["languages"] and item.language != None):
+                if (item.language not in data["languages"] and item.language != None):
                     if (len(data["languages"]) < 3):
                         data["languages"].append(item.language)
 
@@ -36,7 +38,7 @@ class gitDate():
         for name in names:
             print("entering name " + name)
             try:
-                account = self.g.get_user(name)
+                account = g.get_user(name)
             except:
                 next(iterNames)
             person = {}
@@ -85,7 +87,7 @@ class gitDate():
 
         rand_hex_string = hex(random.getrandbits(128))[2:-1] # courtesy http://stackoverflow.com/a/976607/226013
         req_url = db_url + '/_all_docs?include_docs=true&limit={limit}&startkey="{startkey}"'.format(
-            limit=300,
+            limit=10,
             startkey=rand_hex_string
         )
         r = requests.get(req_url)
@@ -107,7 +109,7 @@ class gitDate():
         "num_of_repos": 5
         }
 
-        obj  = json.load(open("data.json"))
+        obj  = json.load(open("data1.json"))
         selections = []
         for i in range(50):
             selections.append(random.randrange(len(obj)))
@@ -120,7 +122,6 @@ class gitDate():
         print(obj[1]["location"])
         for i in selections:
             date = {}
-            date["stars"] = 0
             locationStars = 0
             repoStars = 0
             languageStars = 0
@@ -146,11 +147,15 @@ class gitDate():
             if ((data["num_of_repos"] - 5) <= dateRepos) and (dateRepos >= (data["num_of_repos"] + 5)):
                 repoStars = 1
 
-            date["stars"] = (locationStars + repoStars + languageStars)
+            date["dateStars"] = (locationStars + repoStars + languageStars)
             print("locationStars", locationStars, "repoStars", repoStars, "languageStars", languageStars)
             date["dateRepos"] = dateRepos
             date["dateLanguages"] = dateLanguages
             date["dateLocation"] = obj[i]["location"]
+            date["dateEmail"] = obj[i]["email"]
+            date["dateAvatar_url"] = obj[i]["avatar"]
+            date["dateUsername"] = obj[i]["username"]
+            date["dateName"] = obj[i]["name"]
 
             res.append(date)
         return res
@@ -164,8 +169,9 @@ class gitDate():
 
 
 #gh = gitDate()
-# results = gh.getAuth('krruzic', '872lbangk278')
-#gh.calculateCompatibility()
+#results = gh.getAuth('krruzic', '872lbangk278')
+#res = gh.calculateCompatibility()
+#print(res)
 # results = json.dumps(results)
 # print(results)
 # for res in results:

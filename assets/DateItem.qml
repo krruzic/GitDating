@@ -5,7 +5,7 @@ import "global.js" as Global
 Container {
     //background: background.imagePaint
     verticalAlignment: VerticalAlignment.Center
-    property int compatibility: 5
+    property int dateStars: 5
     property variant compatibilityVals: [ "No compatibility", "Some similarities...", "Okay connection", "Good enough", "Great together!",
         "Perfect Match!" ]
     property string dateName: "Kristopher Ruzic"
@@ -106,7 +106,7 @@ Container {
                 topMargin: 0
                 bottomMargin: 0
                 textStyle.base: lightStyle.style
-                text: compatibilityVals[compatibility]
+                text: compatibilityVals[dateStars]
                 textStyle.color: Color.Gray
             }
             ImageView {
@@ -114,7 +114,7 @@ Container {
                 topMargin: 0
                 bottomMargin: 0
                 horizontalAlignment: HorizontalAlignment.Right
-                imageSource: "asset:///images/hearts/" + compatibility + ".png"
+                imageSource: "asset:///images/hearts/" + dateStars + ".png"
             }
         }
     }

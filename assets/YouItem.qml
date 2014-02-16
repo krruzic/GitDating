@@ -1,14 +1,29 @@
 import bb.cascades 1.2
+import "tart.js" as Tart
 
 Container {
+    id: youItem
     //background: background.imagePaint
     verticalAlignment: VerticalAlignment.Center
-    property int compatibility: 5
-    property variant compatibilityVals: [ "No compatibility", "Some similarities...", "Okay connection", "Good enough", "Great together!",
-        "Perfect Match!" ]
-    property string name: "Kristopher Ruzic"
-    property string location: "Calgary, AB"
-    property variant languages: [ "Python", "Java", "C" ]
+    //property string name: "Test Name"
+    //property string location: "Calgary, AB"
+    //property variant languages: [ "Python", "Java", "C" ]
+    //property string imageLoc: ""
+    //property int repos: 0
+    onCreationCompleted: {
+        Tart.register(youItem);
+    }
+    
+    function onUserData(data) {
+        console.log("data received!!");
+        console.log(data.data["name"]);
+        nameID.text = data.data["name"];
+        locationID.text = data.data["location"];
+        languagesID.text = data.data["languages"][0] + ", " + data.data["languages"][1] + ", " + data.data["languages"][2];
+        imageID.imageSource = "data/profile.png";
+        repoID.text = data["num_of_repos"] + " repos";
+    }
+    
     attachedObjects: [
         TextStyleDefinition {
             id: lightStyle
@@ -38,8 +53,9 @@ Container {
             }
             horizontalAlignment: HorizontalAlignment.Left
             ImageView {
+                id: imageID
                 verticalAlignment: VerticalAlignment.Center
-                imageSource: "asset:///images/profileImage.png"
+                imageSource: "asset:///images/defaultAvatar.png"
                 maxWidth: 100
                 maxHeight: 100
             }
@@ -56,11 +72,21 @@ Container {
                     textStyle.fontWeight: FontWeight.Bold
                 }
                 Label {
+                    id: nameID
                     maxWidth: 300
                     topMargin: 0
                     bottomMargin: 0
                     textStyle.base: lightStyle.style
                     text: name
+                }
+                Label {
+                    id: repoID
+                    topMargin: 0
+                    bottomMargin: 0
+                    textStyle.fontSizeValue: 5
+                    textStyle.base: lightStyle.style
+                    text: repos + " Repos"
+                    textStyle.color: Color.Gray
                 }
             }
         }
@@ -72,6 +98,7 @@ Container {
             horizontalAlignment: HorizontalAlignment.Right
             verticalAlignment: VerticalAlignment.Top
             Label {
+                id: locationID
                 topMargin: 0
                 bottomMargin: 0
                 textStyle.fontSizeValue: 5
@@ -80,6 +107,7 @@ Container {
                 textStyle.color: Color.Gray
             }
             Label {
+                id: languagesID
                 topMargin: 0
                 bottomMargin: 0
                 textStyle.fontSizeValue: 5
